@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'detail_laporan.dart';
 
 class DashboardKaprodiPage extends StatefulWidget {
   const DashboardKaprodiPage({super.key});
@@ -50,7 +51,11 @@ class _DashboardKaprodiPageState extends State<DashboardKaprodiPage> {
   // NAVIGATION METHODS
   // -------------------------------------------------------
   void _goToDetailLaporan(Map<String, dynamic> laporan) {
-    Navigator.pushNamed(context, '/status-laporan', arguments: laporan);
+      Navigator.pushNamed(
+    context,
+    '/detail-laporan',
+    arguments: laporan,
+  );
   }
 
   void _goToNotifikasi() {
