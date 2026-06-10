@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
-import 'splash.dart';
-import 'login.dart';
-import 'dashboard.dart';
-import 'form-laporan.dart';
-import 'status.dart';
-import 'notifikasi.dart';
-import 'profil.dart';
-import 'dashboard_admin.dart';
-import 'dashboard_kaprodi.dart';
-import 'daftar_laporan_page.dart';
-import 'detail_laporan.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+import 'views/auth/splash.dart';
+import 'views/auth/login.dart';
+import 'views/mahasiswa/dashboard.dart';
+import 'views/mahasiswa/form_laporan.dart';
+import 'views/mahasiswa/status.dart';
+import 'views/shared/notifikasi.dart';
+import 'views/shared/profil.dart';
+import 'views/admin/dashboard_admin.dart';
+import 'views/kaprodi/dashboard_kaprodi.dart';
+import 'views/shared/daftar_laporan_page.dart';
+import 'views/shared/detail_laporan.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // ── INISIALISASI SUPABASE ──────────────────────────────
+  await Supabase.initialize(
+    url  : 'https://onvuogdpmqezxexoosgy.supabase.co',       
+    anonKey: 'sb_publishable_0jNRRe78EgvLraOen4U2ag_rP7ugz7m',  
+  );
+
   runApp(const SafeCampusApp());
 }
 
@@ -44,7 +54,7 @@ class SafeCampusApp extends StatelessWidget {
         '/dashboard-admin': (context) => const DashboardAdminPage(),
         '/dashboard-kaprodi': (context) => const DashboardKaprodiPage(),
         '/daftar-laporan': (context) => const DaftarLaporanPage(),
-        '/detail-laporan': (context) => DetailLaporanPage(),
+        '/detail-laporan': (context) => const DetailLaporanPage(),
       },
     );
   }

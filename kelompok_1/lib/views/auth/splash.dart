@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
+import '../../controllers/auth_controller.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -36,9 +38,40 @@ class _SplashPageState extends State<SplashPage>
     );
     _controller.forward();
 
-    Timer(const Duration(seconds: 3), () {
-      if (mounted) _goToLogin();
-    });
+    _checkSessionAndNavigate();
+  }
+
+  Future<void> _checkSessionAndNavigate() async {
+    await Future.delayed(const Duration(seconds: 3));
+    if (!mounted) return;
+
+    try {
+      final session = Supabase.instance.client.auth.currentSession;
+      if (session != null) {
+        final profile = await AuthController.getCurrentProfile();
+        if (profile != null && mounted) {
+          final String role = profile.role;
+          final args = {
+            'nim': profile.nim,
+            'nama': profile.nama,
+            'role': role,
+          };
+          
+          if (role == 'Admin') {
+            Navigator.pushReplacementNamed(context, '/dashboard-admin', arguments: args);
+          } else if (role == 'Kaprodi') {
+            Navigator.pushReplacementNamed(context, '/dashboard-kaprodi', arguments: args);
+          } else {
+            Navigator.pushReplacementNamed(context, '/dashboard', arguments: args);
+          }
+          return;
+        }
+      }
+    } catch (e) {
+      debugPrint('Session check error: $e');
+    }
+
+    if (mounted) _goToLogin();
   }
 
   @override
@@ -92,10 +125,10 @@ class _SplashPageState extends State<SplashPage>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E3A8A).withOpacity(0.5),
+                    color: const Color(0xFF1E3A8A).withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: const Color(0xFF3B82F6).withOpacity(0.4),
+                      color: const Color(0xFF3B82F6).withValues(alpha: 0.4),
                     ),
                   ),
                   child: const Text(
@@ -112,7 +145,7 @@ class _SplashPageState extends State<SplashPage>
                 SizedBox(
                   width: 120,
                   child: LinearProgressIndicator(
-                    backgroundColor: const Color(0xFF1E3A8A).withOpacity(0.3),
+                    backgroundColor: const Color(0xFF1E3A8A).withValues(alpha: 0.3),
                     color: const Color(0xFF3B82F6),
                     minHeight: 3,
                     borderRadius: BorderRadius.circular(4),
@@ -207,7 +240,7 @@ class _PolinemaSplashLogoPainter extends CustomPainter {
     canvas.drawPath(flag, flagFill);
 
     // Jendela tower utama
-    final win = Paint()..color = const Color(0xFF2563EB).withOpacity(0.7);
+    final win = Paint()..color = const Color(0xFF2563EB).withValues(alpha: 0.7);
     for (final row in [cy - 12.0, cy - 3.0]) {
       canvas.drawRRect(
           RRect.fromRectAndRadius(Rect.fromLTWH(cx - 8, row, 5, 5), const Radius.circular(1)), win);
@@ -216,7 +249,7 @@ class _PolinemaSplashLogoPainter extends CustomPainter {
     }
 
     // Jendela sayap
-    final winSm = Paint()..color = const Color(0xFF2563EB).withOpacity(0.55);
+    final winSm = Paint()..color = const Color(0xFF2563EB).withValues(alpha: 0.55);
     for (final row in [cy + 2.0, cy + 10.0]) {
       canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(cx - 28, row, 4, 4), const Radius.circular(1)), winSm);
       canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(cx - 22, row, 4, 4), const Radius.circular(1)), winSm);
@@ -225,7 +258,7 @@ class _PolinemaSplashLogoPainter extends CustomPainter {
     }
 
     // Pintu
-    final door = Paint()..color = const Color(0xFF1E3A8A).withOpacity(0.6);
+    final door = Paint()..color = const Color(0xFF1E3A8A).withValues(alpha: 0.6);
     canvas.drawRRect(
       RRect.fromRectAndRadius(Rect.fromLTWH(cx - 5, cy + 18, 10, 12), const Radius.circular(2)),
       door,
