@@ -55,14 +55,12 @@ class AuthController {
 
     if (res.user == null) return null;
 
-    // Insert ke tabel public.users
-    final profile = await supabase.from('users').insert({
-      'id': res.user!.id,
-      'nim': nim.trim(),
-      'nama': nama.trim(),
-      'role': role,
-      'email': signUpEmail,
-    }).select().single();
+    // Ambil data profil yang otomatis dibuat oleh database trigger Supabase
+    final profile = await supabase
+        .from('users')
+        .select()
+        .eq('id', res.user!.id)
+        .single();
 
     return UserModel.fromMap(profile);
   }
@@ -96,10 +94,14 @@ class AuthController {
     final uid = currentUser?.id;
     if (uid == null) return;
 
-    await supabase.from('users').update({
+    final data = <String, dynamic>{
       'nama': nama,
-      'foto_url': fotoUrl,
-    }).eq('id', uid);
+    };
+    if (fotoUrl != null) {
+      data['foto_url'] = fotoUrl;
+    }
+
+    await supabase.from('users').update(data).eq('id', uid);
   }
 
   // ── UPDATE PROFILE PHOTO ───────────────────────────────
@@ -108,7 +110,7 @@ class AuthController {
     if (uid == null) return null;
 
     final ext = file.name.split('.').last;
-    final path = 'profiles/${uid}_${DateTime.now().millisecondsSinceEpoch}.$ext';
+    final path = 'laporan/profiles/${uid}_${DateTime.now().millisecondsSinceEpoch}.$ext';
     final bytes = await file.readAsBytes();
 
     await supabase.storage
